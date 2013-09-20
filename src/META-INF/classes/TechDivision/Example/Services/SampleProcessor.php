@@ -28,7 +28,7 @@ use Doctrine\ORM\Tools\SchemaValidator;
  * @license    	http://opensource.org/licenses/osl-3.0.php
  *              Open Software License (OSL 3.0)
  * @author      Tim Wagner <tw@techdivision.com>
- * 
+ *
  * @Singleton
  */
 class SampleProcessor {
@@ -90,7 +90,7 @@ class SampleProcessor {
      * Persists the passed entity.
      *
      * @param Sample $entity The entity to persist
-     * @return void
+     * @return Sample The persisted entity
      */
     public function persist(Sample $entity) {
         // load the entity manager
@@ -104,6 +104,8 @@ class SampleProcessor {
         }
         // flush the entity manager
         $entityManager->flush();
+        // and return the entity itself
+        return $entity;
     }
 
     /**

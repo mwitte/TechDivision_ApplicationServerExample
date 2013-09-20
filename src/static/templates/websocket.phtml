@@ -90,8 +90,17 @@
 
     <div class="row-fluid marketing">
 
+        <div class="span12 text-center">
+            <form id="personForm" class="form-inline" action="index" method="post">
+                <input type="hidden" name="action" value="persist" />
+                <input type="hidden" name="sampleId" />
+                <input name="name" type="text" placeholder="Type your name..." />
+                <button type="submit" class="btn">Submit</button>
+            </form>
+        </div>
+
         <div class="span12">
-            <table class="table table-hover">
+            <table id="results" class="table table-hover">
                 <thead>
                 <tr>
                     <th>Id</th>
@@ -118,15 +127,41 @@
 <script src="components/require.js"></script>
 <script type="text/javascript">
 
-    var conn = new WebSocket('ws://127.0.0.1:8589/example');
-    
-    conn.onopen = function(e) {
-        console.log("Connection established!");
+    var connSample = new WebSocket('ws://127.0.0.1:8589/example/sample');
+
+    connSample.onopen = function(e) {
+        console.log("Connection to sample handler established!");
+	    connSample.send('action=overview');
     };
-    
-    conn.onmessage = function(e) {
-        console.log(e.data);
+
+    var connUser = new WebSocket('ws://127.0.0.1:8589/example/user');
+
+    connUser.onopen = function(e) {
+        console.log("Connection to user handler established!");
     };
+
+    connSample.onmessage = function(e) {
+        console.log("Sample-Handler: " + e.data);
+        require(['jquery'], function($) {
+        	var data = JSON.parse(e.data);
+        	for (i = 0; i < data.length; i++) {
+        	    $('#results > tbody:last').append('<tr><td>'+ data[i].sampleId +'</td><td>'+ data[i].name +'</td><td>Edit</td></tr>');
+        	}
+		});
+    };
+
+    connUser.onmessage = function(e) {
+        console.log("User-Handler: " + e.data);
+    };
+
+    require(['jquery'], function($) {
+    	$("#personForm").submit(function(event) {
+        	var serializedValues = $(this).serialize();
+    	    console.log(serializedValues);
+    	    connSample.send(serializedValues);
+    	    event.preventDefault();
+		});
+    });
 
 </script>
 </body>
